@@ -1,6 +1,6 @@
 # ordering-bot
 
-Простенький скрипт, поднимающий лендинг и бота для приёма заказов с небольшим опросом.
+Простенький скрипт, поднимающий лендинг triplethall.ru и бота для приёма заказов с небольшим опросом.
 
 ![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-000000?style=flat&logo=flask&logoColor=white)
