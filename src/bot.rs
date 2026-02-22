@@ -30,7 +30,7 @@ async fn send_smart_with_image(
     if let Some(kb) = markup {
         msg = msg.reply_markup(kb);
     }
-    let sent = msg.await?;
+    let sent = msg.send().await?;
     
     // Сохраняем ID
     save_message_id(db, user_id, sent.id.0 as i32).await?;
@@ -120,7 +120,7 @@ async fn send_smart(
     if let Some(kb) = markup {
         msg = msg.reply_markup(kb);
     }
-    let sent = msg.await?;
+    let sent = msg.send().await?;
     
     // Сохраняем ID
     save_message_id(db, user_id, sent.id.0 as i32).await?;
@@ -140,27 +140,17 @@ pub async fn run(_db: Arc<PgClient>, bot_cfg: BotConfig) -> Result<()> {
     loop {
         let next_offset = offset.unwrap_or(0) + 1;
         
-        // Spawn get_updates in a separate task to prevent stack overflow
-        let bot_clone = bot.clone();
-        let updates_result = tokio::spawn(async move {
-            bot_clone.get_updates()
-                .timeout(60)
-                .limit(1)
-                .offset(next_offset)
-                .send()
-                .await
-        }).await;
-            
-        let updates = match updates_result {
-            Ok(Ok(u)) => u,
-            Ok(Err(e)) => {
-                eprintln!("Ошибка get_updates (retry {}): {}", next_offset, e);
-                tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
-                continue;
-            }
+        // Direct get_updates call with timeout
+        let updates = match bot.get_updates()
+            .timeout(10)
+            .limit(1)
+            .offset(next_offset)
+            .send()
+            .await {
+            Ok(u) => u,
             Err(e) => {
-                eprintln!("Ошибка spawn: {}", e);
-                tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
+                eprintln!("Ошибка get_updates: {}", e);
+                tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
                 continue;
             }
         };
