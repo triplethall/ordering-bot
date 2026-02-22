@@ -1,0 +1,24 @@
+[package]
+name = "ordering_bot"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Асинхронность и БД
+tokio = { version = "1.35", features = ["full", "macros", "rt-multi-thread"] }
+tokio-postgres = { version = "0.7", features = ["with-chrono-0_4"] }
+
+# Обработка ошибок и конфигурация
+anyhow = "1.0"
+config = "0.13"
+serde = { version = "1.0", features = ["derive"] }
+
+# Дата и время
+chrono = "0.4"
+
+# Telegram-бот (teloxide)
+teloxide = { version = "0.13", features = ["macros"] }
+
+# Логирование
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }

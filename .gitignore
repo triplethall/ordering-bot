@@ -1,0 +1,18 @@
+/target
+# Секреты и конфиги
+config.cfg
+.env
+secrets.toml
+
+# Сессии бота (содержат авторизацию)
+sessions/
+*.session
+
+# Скомпилированные файлы Rust
+target/
+Cargo.lock
+**/*.rs.bk
+
+# ОС-специфичные файлы
+.DS_Store
+Thumbs.db

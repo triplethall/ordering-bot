@@ -1,0 +1,13 @@
+[database.local]
+host = "127.0.0.1"
+port = 5432
+database = "bot_platform"
+user = "bot_admin"
+password = "1488Dunke!"
+
+[database.production]
+host = "127.0.0.1"
+port = 5432
+database = "bot_platform"
+user = "bot_admin"
+password = "1488dunke"
