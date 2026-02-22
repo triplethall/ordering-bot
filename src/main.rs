@@ -1,6 +1,7 @@
 pub mod bot;
 pub mod bot_config;
 pub mod db;
+pub mod i18n;
 
 use bot_config::{BotConfig, DbConnectionConfig};
 use std::env;

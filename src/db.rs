@@ -94,10 +94,18 @@ pub async fn create_tables(db: &PgClient) -> Result<()> {
         r#"
         CREATE TABLE IF NOT EXISTS ob_user_state (
             user_id BIGINT PRIMARY KEY,
-            state INT4 NOT NULL,
+            state INT4 NOT NULL DEFAULT 0,
+            language TEXT NOT NULL DEFAULT 'ru',
             created_at TIMESTAMPTZ DEFAULT NOW()
         )
         "#,
+        &[],
+    )
+    .await?;
+
+    // Добавляем колонку language если её нет (миграция)
+    db.execute(
+        "ALTER TABLE ob_user_state ADD COLUMN IF NOT EXISTS language TEXT NOT NULL DEFAULT 'ru'",
         &[],
     )
     .await?;
@@ -251,6 +259,35 @@ pub async fn update_order(
     )
     .await?;
 
+    Ok(())
+}
+
+// ===== LANGUAGE =====
+
+/// Получает язык пользователя
+pub async fn get_user_language(db: &PgClient, user_id: i64) -> Result<String> {
+    let row = db.query_opt(
+        "SELECT language FROM ob_user_state WHERE user_id = $1",
+        &[&user_id],
+    ).await?;
+    
+    match row {
+        Some(r) => Ok(r.get::<_, String>("language")),
+        None => Ok("ru".to_string()), // Default to Russian
+    }
+}
+
+/// Устанавливает язык пользователя
+pub async fn set_user_language(db: &PgClient, user_id: i64, language: &str) -> Result<()> {
+    db.execute(
+        r#"
+        INSERT INTO ob_user_state (user_id, state, language)
+        VALUES ($1, 0, $2)
+        ON CONFLICT (user_id) DO UPDATE SET language = $2
+        "#,
+        &[&user_id, &language],
+    )
+    .await?;
     Ok(())
 }
 
