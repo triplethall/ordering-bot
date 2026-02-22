@@ -144,7 +144,8 @@ pub async fn run(_db: Arc<PgClient>, bot_cfg: BotConfig) -> Result<()> {
         let bot_clone = bot.clone();
         let updates_result = tokio::spawn(async move {
             bot_clone.get_updates()
-                .timeout(30)
+                .timeout(60)
+                .limit(1)
                 .offset(next_offset)
                 .send()
                 .await
@@ -153,13 +154,13 @@ pub async fn run(_db: Arc<PgClient>, bot_cfg: BotConfig) -> Result<()> {
         let updates = match updates_result {
             Ok(Ok(u)) => u,
             Ok(Err(e)) => {
-                eprintln!("Ошибка get_updates: {}", e);
-                tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
+                eprintln!("Ошибка get_updates (retry {}): {}", next_offset, e);
+                tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
                 continue;
             }
             Err(e) => {
                 eprintln!("Ошибка spawn: {}", e);
-                tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
+                tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
                 continue;
             }
         };
