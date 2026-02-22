@@ -45,6 +45,9 @@ async fn main() -> anyhow::Result<()> {
 
     let db_client = Arc::new(client);
 
+    // Создаём таблицы если их нет
+    db::create_tables(&*db_client).await?;
+
     // Загружаем конфиг бота
     let bot_cfg = BotConfig::load(&db_client, "test").await?;
 

@@ -138,11 +138,15 @@ pub async fn run(_db: Arc<PgClient>, bot_cfg: BotConfig) -> Result<()> {
     let mut offset: Option<i32> = None;
 
     loop {
-        let updates = match bot.get_updates()
+        let next_offset = offset.unwrap_or(0) + 1;
+        
+        let updates_result = bot.get_updates()
             .timeout(30)
-            .offset(offset.unwrap_or(0) + 1)
+            .offset(next_offset)
             .send()
-            .await {
+            .await;
+            
+        let updates = match updates_result {
             Ok(u) => u,
             Err(e) => {
                 eprintln!("Ошибка get_updates: {}", e);
